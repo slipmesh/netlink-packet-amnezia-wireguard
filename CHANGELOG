@@ -1,4 +1,16 @@
 # Changelog
+## [0.3.0] - 2026-09-11
+### Breaking changes
+ - Merged upstream `netlink-packet-wireguard` 0.5.0. Requires
+   `netlink-packet-core` 0.9 and `netlink-packet-generic` 0.5.
+ - `Flags` attributes now carry typed flag sets
+   (`AmneziaWireguardDeviceFlags`, `AmneziaWireguardPeerFlags`,
+   `AmneziaWireguardAllowedIpFlags`) instead of a bare `u32`.
+ - Removed the `constants` module; use the flag types instead.
+
+### New features
+ - Added the allowed-ip `Flags` attribute (`WGALLOWEDIP_A_FLAGS`).
+
 ## [0.2.1] - 2026-08-25
 ### New features
  - Added AmneziaWG 3.1 device attributes: `RandomTrailers` and

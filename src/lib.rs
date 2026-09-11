@@ -3,7 +3,6 @@
 //! The `netlink-packet-amnezia-wireguard` crate is designed for parsing and
 //! emitting generic netlink packets for Amnezia WireGuard interface.
 
-pub mod constants;
 pub mod range;
 
 mod allowedip;
@@ -12,18 +11,20 @@ mod message;
 mod peer;
 mod socket_addr;
 
+// test data are using hard coded little endian byte order, not for big-endian
+#[cfg(not(target_endian = "big"))]
 #[cfg(test)]
 mod test;
 
 pub use self::{
     allowedip::{
         AmneziaWireguardAddressFamily, AmneziaWireguardAllowedIp,
-        AmneziaWireguardAllowedIpAttr,
+        AmneziaWireguardAllowedIpAttr, AmneziaWireguardAllowedIpFlags,
     },
-    attribute::AmneziaWireguardAttribute,
+    attribute::{AmneziaWireguardAttribute, AmneziaWireguardDeviceFlags},
     message::{AmneziaWireguardCmd, AmneziaWireguardMessage},
     peer::{
         AmneziaWireguardPeer, AmneziaWireguardPeerAttribute,
-        AmneziaWireguardTimeSpec,
+        AmneziaWireguardPeerFlags, AmneziaWireguardTimeSpec,
     },
 };
