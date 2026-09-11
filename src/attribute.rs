@@ -2,6 +2,7 @@
 
 use std::convert::TryInto;
 
+use bitflags::bitflags;
 use netlink_packet_core::{
     emit_u16, emit_u32, emit_u64, parse_string, parse_u16, parse_u32,
     parse_u64, parse_u8, DecodeError, DefaultNla, Emitable, ErrorContext, Nla,
@@ -91,6 +92,17 @@ fn parse_magic_header(payload: &[u8]) -> Result<String, DecodeError> {
     }
 }
 
+const WGDEVICE_F_REPLACE_PEERS: u32 = 1;
+
+bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    #[non_exhaustive]
+    pub struct AmneziaWireguardDeviceFlags: u32 {
+        const ReplacePeers = WGDEVICE_F_REPLACE_PEERS;
+        const _ = !0;
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum AmneziaWireguardAttribute {
@@ -101,7 +113,7 @@ pub enum AmneziaWireguardAttribute {
     ListenPort(u16),
     Fwmark(u32),
     Peers(Vec<AmneziaWireguardPeer>),
-    Flags(u32),
+    Flags(AmneziaWireguardDeviceFlags),
     // Amnezia attributes
     Peer(AmneziaWireguardPeer),
     JC(u16),   // JunkCount
@@ -263,7 +275,7 @@ impl Nla for AmneziaWireguardAttribute {
             Self::ListenPort(v) => emit_u16(buffer, *v).unwrap(),
             Self::Fwmark(v) => emit_u32(buffer, *v).unwrap(),
             Self::Peers(v) => v.as_slice().emit(buffer),
-            Self::Flags(v) => emit_u32(buffer, *v).unwrap(),
+            Self::Flags(v) => emit_u32(buffer, v.bits()).unwrap(),
             // Amnezia Specific
             Self::Peer(v) => v.emit(buffer),
             Self::H1Range(v)
@@ -332,9 +344,12 @@ impl<'a, T: AsRef<[u8]> + ?Sized> Parseable<NlaBuffer<&'a T>>
             WGDEVICE_A_PEERS => {
                 Self::Peers(AmneziaWireguardPeers::parse(buf)?.0)
             }
-            WGDEVICE_A_FLAGS => Self::Flags(
-                parse_u32(payload).context("invalid WGDEVICE_A_FLAGS value")?,
-            ),
+            WGDEVICE_A_FLAGS => {
+                Self::Flags(AmneziaWireguardDeviceFlags::from_bits_retain(
+                    parse_u32(payload)
+                        .context("invalid WGDEVICE_A_FLAGS value")?,
+                ))
+            }
             WGDEVICE_A_PEER => Self::Peer(AmneziaWireguardPeer::parse(buf)?),
             WGDEVICE_A_JC => Self::JC(
                 parse_u16(payload).context("invalid WGDEVICE_A_JC value")?,

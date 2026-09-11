@@ -19,7 +19,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-netlink-packet-amnezia-wireguard = "0.2"
+netlink-packet-amnezia-wireguard = "0.3"
 ```
 
 ## Quick Start
@@ -115,7 +115,7 @@ AmneziaWG 3.0 sends a `u32` (packed `u16` range), parsed into
 `PersistentKeepaliveRange(u32)`.
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the [MIT License](./LICENSE-MIT).
 
 ## Acknowledgements
 

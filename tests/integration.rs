@@ -60,7 +60,7 @@ fn unique_ifname(prefix: &str) -> String {
 
 async fn family_available(handle: &mut genetlink::GenetlinkHandle) -> bool {
     handle
-        .resolve_family_id::<AmneziaWireguardMessage>()
+        .resolve_family::<AmneziaWireguardMessage>()
         .await
         .is_ok()
 }

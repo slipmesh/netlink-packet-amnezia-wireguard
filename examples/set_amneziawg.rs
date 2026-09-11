@@ -8,6 +8,8 @@ use std::{
 };
 
 #[cfg(target_os = "linux")]
+use base64::prelude::{Engine as _, BASE64_STANDARD};
+#[cfg(target_os = "linux")]
 use futures::StreamExt;
 #[cfg(target_os = "linux")]
 use genetlink::new_connection;
@@ -46,7 +48,8 @@ async fn main() {
     let name = argv[1].clone();
     let priv_key = generate_priv_key();
     let peer_pub_key: [u8; AmneziaWireguardAttribute::WG_KEY_LEN] =
-        base64::decode("8bdQrVLqiw3ZoHCucNh1YfH0iCWuyStniRr8t7H24Fk=")
+        BASE64_STANDARD
+            .decode("8bdQrVLqiw3ZoHCucNh1YfH0iCWuyStniRr8t7H24Fk=")
             .unwrap()
             .try_into()
             .unwrap();
@@ -120,7 +123,7 @@ async fn main() {
 #[cfg(target_os = "linux")]
 fn generate_priv_key() -> [u8; AmneziaWireguardAttribute::WG_KEY_LEN] {
     let mut key = [0u8; AmneziaWireguardAttribute::WG_KEY_LEN];
-    getrandom::getrandom(&mut key).unwrap();
+    getrandom::fill(&mut key).unwrap();
     // modify random bytes using algorithm described
     // at https://cr.yp.to/ecdh.html.
     key[0] &= 248;

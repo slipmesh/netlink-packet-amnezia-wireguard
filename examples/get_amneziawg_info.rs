@@ -4,6 +4,8 @@
 use std::env::args;
 
 #[cfg(target_os = "linux")]
+use base64::prelude::{Engine as _, BASE64_STANDARD};
+#[cfg(target_os = "linux")]
 use futures::StreamExt;
 #[cfg(target_os = "linux")]
 use genetlink::new_connection;
@@ -75,7 +77,7 @@ fn print_wg_payload(wg: AmneziaWireguardMessage) {
                 println!("PrivateKey: (hidden)")
             }
             AmneziaWireguardAttribute::PublicKey(v) => {
-                println!("PublicKey: {}", base64::encode(v))
+                println!("PublicKey: {}", BASE64_STANDARD.encode(v))
             }
             AmneziaWireguardAttribute::ListenPort(v) => {
                 println!("ListenPort: {}", v)
@@ -106,7 +108,7 @@ fn print_wg_peer(attrs: &[AmneziaWireguardPeerAttribute]) {
     for attr in attrs {
         match attr {
             AmneziaWireguardPeerAttribute::PublicKey(v) => {
-                println!("  PublicKey: {}", base64::encode(v))
+                println!("  PublicKey: {}", BASE64_STANDARD.encode(v))
             }
             AmneziaWireguardPeerAttribute::PresharedKey(_) => {
                 println!("  PresharedKey: (hidden)")

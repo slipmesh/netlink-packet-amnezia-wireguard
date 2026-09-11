@@ -2,14 +2,17 @@
 
 use std::net::IpAddr;
 
+use bitflags::bitflags;
 use netlink_packet_core::{
-    emit_u16, parse_ip, parse_u16, DecodeError, DefaultNla, Emitable,
-    ErrorContext, Nla, NlaBuffer, NlasIterator, Parseable, NLA_F_NESTED,
+    emit_u16, emit_u32, parse_ip, parse_u16, parse_u32, DecodeError,
+    DefaultNla, Emitable, ErrorContext, Nla, NlaBuffer, NlasIterator,
+    Parseable, NLA_F_NESTED,
 };
 
 const WGALLOWEDIP_A_FAMILY: u16 = 1;
 const WGALLOWEDIP_A_IPADDR: u16 = 2;
 const WGALLOWEDIP_A_CIDR_MASK: u16 = 3;
+const WGALLOWEDIP_A_FLAGS: u16 = 4;
 
 pub(crate) struct AmneziaWireguardAllowedIps(
     pub(crate) Vec<AmneziaWireguardAllowedIp>,
@@ -108,12 +111,26 @@ impl From<AmneziaWireguardAddressFamily> for u16 {
     }
 }
 
+const WGALLOWEDIP_F_REMOVE_ME: u32 = 1;
+
+// TODO: Once wireguard-tools support this flag, add unit test for using
+//       captured netlink packet.
+bitflags! {
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    #[non_exhaustive]
+    pub struct AmneziaWireguardAllowedIpFlags: u32 {
+        const RemoveMe = WGALLOWEDIP_F_REMOVE_ME;
+        const _ = !0;
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum AmneziaWireguardAllowedIpAttr {
     Family(AmneziaWireguardAddressFamily),
     IpAddr(IpAddr),
     Cidr(u8),
+    Flags(AmneziaWireguardAllowedIpFlags),
     Other(DefaultNla),
 }
 
@@ -126,6 +143,7 @@ impl Nla for AmneziaWireguardAllowedIpAttr {
                 IpAddr::V6(_) => 16,
             },
             Self::Cidr(_) => 1,
+            Self::Flags(_) => 4,
             Self::Other(nla) => nla.value_len(),
         }
     }
@@ -135,6 +153,7 @@ impl Nla for AmneziaWireguardAllowedIpAttr {
             Self::Family(_) => WGALLOWEDIP_A_FAMILY,
             Self::IpAddr(_) => WGALLOWEDIP_A_IPADDR,
             Self::Cidr(_) => WGALLOWEDIP_A_CIDR_MASK,
+            Self::Flags(_) => WGALLOWEDIP_A_FLAGS,
             Self::Other(nla) => nla.kind(),
         }
     }
@@ -147,6 +166,7 @@ impl Nla for AmneziaWireguardAllowedIpAttr {
                 IpAddr::V6(ip) => buffer.copy_from_slice(&ip.octets()),
             },
             Self::Cidr(v) => buffer[0] = *v,
+            Self::Flags(v) => emit_u32(buffer, v.bits()).unwrap(),
             Self::Other(nla) => nla.emit_value(buffer),
         }
     }
@@ -168,6 +188,12 @@ impl<'a, T: AsRef<[u8]> + ?Sized> Parseable<NlaBuffer<&'a T>>
                     .context("invalid WGALLOWEDIP_A_IPADDR value")?,
             ),
             WGALLOWEDIP_A_CIDR_MASK => Self::Cidr(payload[0]),
+            WGALLOWEDIP_A_FLAGS => {
+                Self::Flags(AmneziaWireguardAllowedIpFlags::from_bits_retain(
+                    parse_u32(payload)
+                        .context("invalid WGALLOWEDIP_A_FLAGS value")?,
+                ))
+            }
             kind => Self::Other(
                 DefaultNla::parse(buf)
                     .context(format!("unknown NLA type {kind}"))?,
