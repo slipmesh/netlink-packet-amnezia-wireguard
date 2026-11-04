@@ -694,3 +694,27 @@ fn test_keepalive_range_roundtrip() {
 
     assert_eq!(msg, roundtrip_msg(msg.clone()));
 }
+
+// The kernel nests the peer attributes directly under WGDEVICE_A_PEER in
+// WG_CMD_UNKNOWN_PEER notifications, with no per-peer header as in
+// WGDEVICE_A_PEERS.
+#[test]
+fn test_device_peer_wire_format() {
+    use netlink_packet_core::NlaBuffer;
+
+    let attr = AmneziaWireguardAttribute::Peer(AmneziaWireguardPeer(vec![
+        AmneziaWireguardPeerAttribute::PublicKey([7u8; 32]),
+    ]));
+    let mut buf = vec![0; attr.buffer_len()];
+    attr.emit(&mut buf);
+
+    // WGDEVICE_A_PEER (18) | NLA_F_NESTED, len = 4 + 36, then
+    // WGPEER_A_PUBLIC_KEY (1), len = 4 + 32.
+    let mut expected = vec![0x28, 0x00, 0x12, 0x80, 0x24, 0x00, 0x01, 0x00];
+    expected.extend([7u8; 32]);
+    assert_eq!(buf, expected);
+
+    let parsed =
+        AmneziaWireguardAttribute::parse(&NlaBuffer::new(&buf)).unwrap();
+    assert_eq!(parsed, attr);
+}
