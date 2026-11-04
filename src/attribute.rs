@@ -198,7 +198,7 @@ impl Nla for AmneziaWireguardAttribute {
             | Self::H4Range(_) => 8,
             Self::RandomTrailers(_) | Self::DisableCookies(_) => 1,
             // Amnezia Specific Fields
-            Self::Peer(v) => v.buffer_len(),
+            Self::Peer(v) => v.value_len(),
             Self::JC(_)
             | Self::Jmax(_)
             | Self::Jmin(_)
@@ -277,7 +277,7 @@ impl Nla for AmneziaWireguardAttribute {
             Self::Peers(v) => v.as_slice().emit(buffer),
             Self::Flags(v) => emit_u32(buffer, v.bits()).unwrap(),
             // Amnezia Specific
-            Self::Peer(v) => v.emit(buffer),
+            Self::Peer(v) => v.emit_value(buffer),
             Self::H1Range(v)
             | Self::H2Range(v)
             | Self::H3Range(v)
