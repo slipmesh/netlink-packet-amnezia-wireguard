@@ -1,4 +1,15 @@
 # Changelog
+## [0.5.1+sm.1] - 2026-11-04
+### Breaking changes
+ - Versions now follow the upstream `netlink-packet-wireguard` release this
+   fork is based on, with `+sm.N` counting its own releases on top of it.
+   This release is based on 0.5.1 and supersedes 0.3.0.
+
+### Bug fixes
+ - Merged upstream `netlink-packet-wireguard` 0.5.1: the `netlink-proto`
+   dev-dependency moves to 0.14.1, which `genetlink` 0.3.1 requires.
+ - The README installs the crate as a git dependency; it was never published
+   on crates.io under this version line.
 ## [0.3.0] - 2026-09-11
 ### Breaking changes
  - Merged upstream `netlink-packet-wireguard` 0.5.0. Requires

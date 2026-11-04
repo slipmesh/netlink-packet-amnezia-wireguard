@@ -19,7 +19,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-netlink-packet-amnezia-wireguard = "0.3"
+netlink-packet-amnezia-wireguard = { git = "https://github.com/slipmesh/netlink-packet-amnezia-wireguard", tag = "v0.5.1+sm.1" }
 ```
 
 ## Quick Start
