@@ -11,6 +11,9 @@
    dev-dependency moves to 0.14.1, which `genetlink` 0.3.1 requires.
  - The README installs the crate as a git dependency; it was never published
    on crates.io under this version line.
+ - `WGDEVICE_A_PEER` is emitted with the peer attributes directly under it,
+   as the kernel sends it, instead of wrapped in a second nested header.
+
 ## [0.3.0] - 2026-09-11
 ### Breaking changes
  - Merged upstream `netlink-packet-wireguard` 0.5.0. Requires
