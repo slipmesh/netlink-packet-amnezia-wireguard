@@ -3,7 +3,8 @@
 ### Breaking changes
  - Versions now follow the upstream `netlink-packet-wireguard` release this
    fork is based on, with `+sm.N` counting its own releases on top of it.
-   This release is based on 0.5.1 and supersedes 0.3.0.
+   This release is based on 0.5.1 and supersedes this fork's 0.3.0 of
+   2026-09-11.
 
 ### Bug fixes
  - Merged upstream `netlink-packet-wireguard` 0.5.1: the `netlink-proto`

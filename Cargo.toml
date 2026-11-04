@@ -2,8 +2,8 @@
 name = "netlink-packet-amnezia-wireguard"
 version = "0.5.1+sm.1"
 edition = "2021"
-homepage = "https://github.com/frkn-dev/netlink-packet-amnezia-wireguard"
-repository = "https://github.com/frkn-dev/netlink-packet-amnezia-wireguard"
+homepage = "https://github.com/slipmesh/netlink-packet-amnezia-wireguard"
+repository = "https://github.com/slipmesh/netlink-packet-amnezia-wireguard"
 keywords = ["wireguard", "netlink", "linux", "amnezia"]
 license = "MIT"
 readme = "README.md"
